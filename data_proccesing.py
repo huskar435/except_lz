@@ -9,19 +9,22 @@ class DataProcessing:
     def processing_dataset(self):
         try:
             if not os.path.exists(self.file_path):
-                raise FileNotFoundError(f"Файл '{self.file_path}' не найден.")
+                raise FileNotFoundError(f"No such file or directory:'{self.file_path}' ")
+
+      
             try:
                 df = pd.read_csv(self.file_path)
             except UnicodeDecodeError:
                 df = pd.read_csv(self.file_path)
 
-        
+       
             missing_columns = [col for col in self.expected_columns if col not in df.columns]
             if missing_columns:
                 raise ValueError(f"Отсутствуют столбцы: {', '.join(missing_columns)}")
 
+       
             if df.empty:
-                raise ValueError("Датафрейм пуст.")
+                raise ValueError("Возникла следующая ошибка: Датафрейм пуст.")
 
             print("Чтение датафрейма завершено успешно.")
             return df
