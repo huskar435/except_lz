@@ -1,51 +1,45 @@
-import os
 import pandas as pd
+from pandas.errors import EmptyDataError
+import os
 
-class DataProcessing:
-    def __init__(self, file_path, expected_columns): 
+class Data_Processing:
+    def __init__(self, file_path): 
         self.file_path = file_path
-        self.expected_columns = expected_columns
+     
+    def existence_check(self):
+        if not os.path.exists(self.file_path):
+            print(f"Возникла следующая ошибка: [Errno2] No such file or directory: '{self.file_path}'")
+            return False
+        return True
 
-    def processing_dataset(self):
+    def content_check(self):
         try:
-            if not os.path.exists(self.file_path):
-                raise FileNotFoundError(f"No such file or directory:'{self.file_path}' ")
-
-      
-            try:
-                df = pd.read_csv(self.file_path)
-            except UnicodeDecodeError:
-                df = pd.read_csv(self.file_path)
-
-       
-            missing_columns = [col for col in self.expected_columns if col not in df.columns]
-            if missing_columns:
-                raise ValueError(f"Отсутствуют столбцы: {', '.join(missing_columns)}")
-
-       
+            df = pd.read_csv(self.file_path)
             if df.empty:
-                raise ValueError("Возникла следующая ошибка: Датафрейм пуст.")
+                print(f"")
+                return False
+        except EmptyDataError:
+            print("Возникла следующая ошибка: Датафрейм '{self.file_path}' пуст.")
+            return False
+        except FileNotFoundError:
+            print(f"Возникла следующая ошибка: [Errno2] No such file or directory: '{self.file_path}'")
+            return False
+        return True
 
-            print("Чтение датафрейма завершено успешно.")
-            return df
-
-        except (FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError, ValueError) as e:
-            print(f"Ошибка: {e}")
+    def analyze_dataframe(self):
+        try:
+            pd.read_csv(self.file_path)
+            print("Чтение датафрейма завершено успешно")
+        except FileNotFoundError:
+            print(f"Возникла следующая ошибка: [Errno2] No such file or directory: '{self.file_path}'")
         except Exception as e:
-            print(f"Неизвестная ошибка: {e}")
-
-        return None
+            print(f"Структура датафрейма НЕ соответствует ожидаемой: {e}")
 
 def main():
-    expected_columns = [
-        "Участники гражданского оборота", "Тип операции", "Сумма операции",
-        "Вид расчета", "Место оплаты", "Терминал оплаты", "Дата оплаты",
-        "Время оплаты", "Результат операции", "Cash-back", "Сумма cash-back"
-    ]
-
-    file_path = "var4.csv"
-    processor = DataProcessing(file_path, expected_columns)
-    df = processor.processing_dataset()
+    processor = Data_Processing("var4.csv")
+    if processor.existence_check():
+        processor.content_check()
+        processor.analyze_dataframe()
 
 if __name__ == "__main__":
     main()
